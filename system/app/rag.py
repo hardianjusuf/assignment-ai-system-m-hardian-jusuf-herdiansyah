@@ -111,5 +111,14 @@ async def answer_from_knowledge_base(query: str) -> str:
     # mengukur latency LLM (answer generation) untuk monitoring performa LLM
     llm_latency = time.perf_counter() - start_llm
     print(f"[LATENCY] LLM: {llm_latency:.3f} detik")
+
+   # mencatat penggunaan token untuk monitoring biaya token LLM generation
+    usage = response.usage_metadata
+
+    if usage:
+        print("\nPenggunaan token untuk generate jawaban LLM")
+        print("Input tokens :", usage.prompt_token_count)
+        print("Output tokens:", usage.candidates_token_count)
+        print("Total tokens :", usage.total_token_count)
     
     return response.text

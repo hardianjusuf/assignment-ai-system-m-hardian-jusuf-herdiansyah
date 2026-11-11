@@ -38,6 +38,17 @@ Pertanyaan: {query}"""
         contents=prompt,
         config=types.GenerateContentConfig(temperature=0.0),
     )
+
+    # mencatat penggunaan token untuk monitoring biaya token intent detection
+    usage = response.usage_metadata
+
+    if usage:
+        print("\nPenggunaan token untuk intent detection")
+        print("Input tokens :", usage.prompt_token_count)
+        print("Output tokens:", usage.candidates_token_count)
+        print("Total tokens :", usage.total_token_count)
+
+
     intent = response.text.strip().lower()
 
     if intent not in ("faq", "ticket_status"):
