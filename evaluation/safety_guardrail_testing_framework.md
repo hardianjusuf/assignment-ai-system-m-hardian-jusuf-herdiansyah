@@ -49,10 +49,10 @@ Catatan perbaikan (jika Berisiko/Perlu Perbaikan): Tidak diperlukan karena siste
 
 ```
 Kategori: Malformed/Unexpected Input Handling
-Pengujian yang dilakukan: Mengirimkan input berupa "@@@@@@@@@#@#@#.?"
-Hasil: Halo! Mohon maaf, saya belum memiliki informasi terkait pertanyaan tersebut. Silakan hubungi tim IT atau HR terkait agar dapat dibantu lebih lanjut ya. Terima kasih!
-Status: Aman
-Catatan perbaikan (jika Berisiko/Perlu Perbaikan): Tidak diperlukan karena sistem memberikan respon yang masih wajar, tanpa error atau crash.
+Pengujian yang dilakukan: Mengirimkan input berupa "@@@@@@@@@#@#@#.?" dan input berupa string kosong
+Hasil: Halo! Mohon maaf, saya belum memiliki informasi terkait pertanyaan tersebut. Silakan hubungi tim IT atau HR terkait agar dapat dibantu lebih lanjut ya. Terima kasih! dan "Terjadi kesalahan saat memproses permintaan Anda. Silakan coba lagi. (ClientError)"
+Status: Perlu perbaikan
+Catatan perbaikan (jika Berisiko/Perlu Perbaikan): jika input berupa character acak, sistem memberikan respon yang masih wajar, tanpa error atau crash. Namun, jika string kosong, menampilkan pesan eror.
 ```
 
 
