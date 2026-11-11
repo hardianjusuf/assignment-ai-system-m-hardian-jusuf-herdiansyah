@@ -26,8 +26,9 @@ async def detect_intent(query: str) -> str:
         return "ticket_status"
 
     prompt = f"""Klasifikasikan pertanyaan berikut ke dalam salah satu kategori:
-'faq' (pertanyaan informasi/kebijakan umum seputar cuti, akses, perangkat, HR, dsb)
-atau 'ticket_status' (permintaan mengecek status tiket tertentu).
+- faq: pertanyaan informasi/kebijakan umum seputar cuti, akses, perangkat, HR, dsb.
+- ticket_status: permintaan mengecek status tiket tertentu.
+- mixed: gabungan antara faq dan ticket_status.
 
 Jawab HANYA dengan satu kata: faq atau ticket_status.
 
@@ -51,7 +52,7 @@ Pertanyaan: {query}"""
 
     intent = response.text.strip().lower()
 
-    if intent not in ("faq", "ticket_status"):
+    if intent not in ("faq", "ticket_status", "mixed"):
         return "faq"  # default fallback yang lebih aman daripada 'unknown'
     return intent
 
@@ -73,6 +74,41 @@ async def handle_query(query: str) -> dict:
         router_latency = time.perf_counter() - start_router
         print(f"[LATENCY] Router: {router_latency:.3f} detik")
 
+       # Menangani intent 'mixed' (FAQ + pengecekan tiket)
+        if intent == "mixed":
+
+            # Memproses pertanyaan FAQ
+            faq_query = re.split(
+                r"\b(?:dan|lalu|serta)\b",
+                query,
+                maxsplit=1,
+                flags=re.IGNORECASE
+            )[0].strip()
+
+            faq_data = await answer_from_knowledge_base(faq_query)
+
+            # Memproses permintaan pengecekan tiket
+            ticket_id = extract_ticket_id(query)
+
+            if ticket_id:
+                ticket_data = get_ticket_status(ticket_id)
+            else:
+                ticket_data = (
+                    "Untuk mengecek status tiket, silakan sertakan "
+                    "ID tiket dengan format TICKET-XXXX."
+                )
+
+            # Menggabungkan kedua respons
+            combined_data = (
+                f"Informasi IT/HR:\n{faq_data}\n\n"
+                f"Informasi Tiket:\n{ticket_data}"
+            )
+
+            return {
+                "status": "success",
+                "intent": "mixed",
+                "data": combined_data,
+            }
         if intent == "ticket_status":
             ticket_id = extract_ticket_id(query)
             if not ticket_id:
