@@ -6,6 +6,7 @@ sebagai starter system untuk Assignment 5 (AI System Evaluation, Safety & Optimi
 """
 
 import os
+import time
 import pandas as pd
 import numpy as np
 import faiss
@@ -86,12 +87,29 @@ Jawaban:"""
 
 async def answer_from_knowledge_base(query: str) -> str:
     """Menjalankan semantic search, menyusun prompt, dan menghasilkan jawaban via LLM."""
+
+    # Mengukur latency retrieval (semantic search) untuk monitoring performa retrieval
+  
+    # 1. Mengukur retrieval
+    start_retrieval = time.perf_counter()
     search_results = semantic_search(query, top_k=3)
+    retrieval_latency = time.perf_counter() - start_retrieval
+    print(f"[LATENCY] Retrieval: {retrieval_latency:.3f} detik")
+
+    # 2. Membangun prompt
     prompt = _build_prompt(query, search_results)
+
+  # 3. Mengukur LLM generation
+    start_llm = time.perf_counter()
 
     response = _client.models.generate_content(
         model="gemini-3.1-flash-lite", # sesuaikan model LLM yang digunakan
         contents=prompt,
         config=types.GenerateContentConfig(temperature=0.3),
     )
+
+    # mengukur latency LLM (answer generation) untuk monitoring performa LLM
+    llm_latency = time.perf_counter() - start_llm
+    print(f"[LATENCY] LLM: {llm_latency:.3f} detik")
+    
     return response.text
