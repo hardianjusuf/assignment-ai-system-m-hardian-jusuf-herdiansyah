@@ -4,6 +4,7 @@ Router — implementasi lengkap: intent detection berbasis LLM + routing ke RAG 
 
 import os
 import re
+import time
 from google import genai
 from google.genai import types
 
@@ -33,7 +34,7 @@ Jawab HANYA dengan satu kata: faq atau ticket_status.
 Pertanyaan: {query}"""
 
     response = _client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-3.1-flash-lite", # sesuaikan model LLM yang digunakan
         contents=prompt,
         config=types.GenerateContentConfig(temperature=0.0),
     )
@@ -55,7 +56,11 @@ def extract_ticket_id(query: str) -> str:
 async def handle_query(query: str) -> dict:
     """Fungsi utama yang dipanggil oleh endpoint /ask."""
     try:
+        # Mengukur latency router (intent detection) untuk monitoring performa router
+        start_router = time.perf_counter()
         intent = await detect_intent(query)
+        router_latency = time.perf_counter() - start_router
+        print(f"[LATENCY] Router: {router_latency:.3f} detik")
 
         if intent == "ticket_status":
             ticket_id = extract_ticket_id(query)
