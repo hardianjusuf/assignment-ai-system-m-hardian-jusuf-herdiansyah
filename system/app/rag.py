@@ -22,7 +22,7 @@ _df = None
 
 def _get_embedding(text: str):
     result = _client.models.embed_content(
-        model="text-embedding-004",
+        model="gemini-embedding-001", # sesuaikan model embedding yang digunakan
         contents=text,
     )
     return result.embeddings[0].values
@@ -90,7 +90,7 @@ async def answer_from_knowledge_base(query: str) -> str:
     prompt = _build_prompt(query, search_results)
 
     response = _client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-3.1-flash-lite", # sesuaikan model LLM yang digunakan
         contents=prompt,
         config=types.GenerateContentConfig(temperature=0.3),
     )
