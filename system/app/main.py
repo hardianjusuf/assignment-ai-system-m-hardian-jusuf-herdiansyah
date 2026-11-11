@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from app.router import handle_query
 from app.rag import build_index
 
+from fastapi import FastAPI, HTTPException
+
 app = FastAPI(title="IT Helpdesk Assistant API")
 
 
@@ -40,4 +42,11 @@ async def ask(request: AskRequest):
     result = await handle_query(request.query)
     end = time.perf_counter()
     print(f"\n[LATENCY] Total: {end - start:.3f} detik")
+
+    # Validasi input query untuk memastikan tidak kosong atau hanya berisi spasi
+    if not request.query.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Mohon masukkan pertanyaan yang berkaitan dengan layanan perusahaan."
+        )
     return AskResponse(**result)
